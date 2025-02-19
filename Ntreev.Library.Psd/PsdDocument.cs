@@ -37,7 +37,7 @@ namespace Ntreev.Library.Psd
 
         public PsdDocument()
         {
-            
+
         }
 
         public static PsdDocument Create(string filename)
@@ -154,6 +154,11 @@ namespace Ntreev.Library.Psd
         }
 
         #region IPsdLayer
+
+        public bool IsVisible
+        {
+            get { return true; }
+        }
 
         IPsdLayer IPsdLayer.Parent
         {
