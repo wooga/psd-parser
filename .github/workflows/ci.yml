@@ -1,0 +1,128 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - preview
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+      - preview
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: compile
+    outputs:
+      version: ${{ steps.vars.outputs.VERSION }}
+      tag: ${{ steps.vars.outputs.TAG }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Version and Tag
+        id: bump_version
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          RELEASE_BRANCHES: main
+          WITH_V: true
+          PRERELEASE_SUFFIX: alpha
+          PRERELEASE: ${{ github.ref != 'main' }}
+          TAG_CONTEXT: branch
+
+      - name: Prepare Outputs
+        id: vars
+        run: |
+          echo "VERSION=$(echo ${{ steps.bump_version.outputs.tag }} | sed 's/[v]//g')" >> "$GITHUB_OUTPUT"
+          echo "TAG=$(echo ${{ steps.bump_version.outputs.tag }})" >> "$GITHUB_OUTPUT"
+
+      - name: Build Release Binaries
+        id: build
+        run: dotnet build --configuration Release -p:Version=${{ steps.vars.outputs.version }}
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Binaries
+          path: Ntreev.Library.Psd/bin/Release
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Binaries
+          path: binaries
+
+      - name: Zip Binaries
+        run: zip -r ../Wooga.Ntreev.Library.Psd.zip ./*
+        working-directory: binaries
+
+      - name: Upload Release Binaries
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ needs.build.outputs.tag }} --title "Release ${{ needs.build.outputs.version }}"
+          gh release upload ${{ needs.build.outputs.tag }} Wooga.Ntreev.Library.Psd.zip
+
+  nuget:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Binaries
+          path: bin/Release/
+
+      - name: GitHub Publish
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/wooga/index.json
