@@ -1,20 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <!--Build-->
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net35</TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.18306.1005</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.18306.1005</FileVersion>
-    <RepositoryType>git</RepositoryType>
-    <PackageLicenseUrl>https://github.com/NtreevSoft/psd-parser/blob/master/LICENSE.md</PackageLicenseUrl>
-    <Copyright>Copyright ¨Ï Ntreev Soft 2018</Copyright>
-    <Description>Photoshop file parser for .net</Description>
-    <Company>NtreevSoft</Company>
-    <Authors>s2quake</Authors>
-    <RepositoryUrl>https://github.com/NtreevSoft/psd-parser</RepositoryUrl>
-    <PackageTags>c# parser photoshop .net</PackageTags>
   </PropertyGroup>
+
+  <!--Package-->
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <PackageId>Wooga.Ntree.Library.Psd</PackageId>
+    <Authors>s2quake</Authors>
+    <Company>NtreevSoft</Company>
+
+    <Copyright>Copyright ï¿½ï¿½ Ntreev Soft 2018</Copyright>
+    <Description>Photoshop file parser for .net</Description>
+
+    <RepositoryUrl>https://github.com/NtreevSoft/psd-parser</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <PackageTags>c# parser photoshop .net</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <!--Debug/Source Link-->
+  <PropertyGroup>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <DebugSymbols>true</DebugSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net35'">
     <Reference Include="System" />
