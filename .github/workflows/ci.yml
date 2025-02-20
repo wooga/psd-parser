@@ -3,13 +3,13 @@ name: Continuous Integration
 on:
   push:
     branches:
-      - main
+      - master
       - preview
     paths-ignore:
       - '**.md'
   pull_request:
     branches:
-      - main
+      - master
       - preview
     paths-ignore:
       - '**.md'
@@ -55,10 +55,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-          RELEASE_BRANCHES: main
+          RELEASE_BRANCHES: master
           WITH_V: true
           PRERELEASE_SUFFIX: alpha
-          PRERELEASE: ${{ github.ref != 'main' }}
+          PRERELEASE: ${{ github.ref != 'master' }}
           TAG_CONTEXT: branch
 
       - name: Prepare Outputs
@@ -80,7 +80,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     needs: build
     permissions:
       contents: write
