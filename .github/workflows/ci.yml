@@ -126,3 +126,6 @@ jobs:
 
       - name: GitHub Publish
         run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/wooga/index.json
+
+      - name: JFrog Publish
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.JFROG_NUGET_API_KEY }} --source https://wooga.jfrog.io/artifactory/api/nuget/v3/nuget-main/index.json
