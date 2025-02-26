@@ -125,4 +125,4 @@ jobs:
           path: bin/Release/
 
       - name: JFrog Publish
-        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.JFROG_NUGET_API_KEY }} --source https://wooga.jfrog.io/artifactory/api/nuget/v3/wooga_nuget/index.json
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.JFROG_NUGET_API_KEY }} --source https://wooga.jfrog.io/artifactory/api/nuget/v3/wooga_nuget_publish/index.json
