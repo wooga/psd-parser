@@ -144,13 +144,22 @@ namespace Ntreev.Library.Psd
         internal void Read(Stream stream, PsdResolver resolver, Uri uri)
         {
             this.reader = new PsdReader(stream, resolver, uri);
-            this.reader.ReadDocumentHeader();
 
-            this.fileHeaderSection = new FileHeaderSectionReader(this.reader);
-            this.colorModeDataSection = new ColorModeDataSectionReader(this.reader);
-            this.imageResourcesSection = new ImageResourcesSectionReader(this.reader);
-            this.layerAndMaskSection = new LayerAndMaskInformationSectionReader(this.reader, this);
-            this.imageDataSection = new ImageDataSectionReader(this.reader, this);
+            try
+            {
+                this.reader.ReadDocumentHeader();
+
+                this.fileHeaderSection = new FileHeaderSectionReader(this.reader);
+                this.colorModeDataSection = new ColorModeDataSectionReader(this.reader);
+                this.imageResourcesSection = new ImageResourcesSectionReader(this.reader);
+                this.layerAndMaskSection = new LayerAndMaskInformationSectionReader(this.reader, this);
+                this.imageDataSection = new ImageDataSectionReader(this.reader, this);
+            }
+            catch (Exception)
+            {
+                Dispose();
+                throw;
+            }
         }
 
         #region IPsdLayer
